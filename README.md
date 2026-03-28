@@ -31,13 +31,13 @@ DumbVersion is split into two primary executables:
 The CLI tool is used to index base files, diff them against targets, and emit `.dvp` (DumbVersion Patch) files.
 
 To create a patch from a single base file to a single target file:
-```bash
+```
 DumbVersionCreator <base_file> <target_file> [output.dvp]
 ```
 *(If `output.dvp` is omitted, it will automatically be placed in the target file's directory and be named the same as the target_file).*
 
 To create patches for multiple target files derived from the same base:
-```bash
+```
 DumbVersionCreator -bulk <base_file> <target_folder> [output_folder]
 ```
 
@@ -48,7 +48,7 @@ The Patcher is built entirely around end-user safety and speed. All possible com
 #### Interactive Mode
 
 Most end users can simply drop `DumbVersionPatcher` into a folder alongside their base file and `.dvp` patch file(s) and double-click the executable (or run it with no arguments):
-```bash
+```
 DumbVersionPatcher
 ```
 * If multiple patches or base files are found, the patcher will prompt the user with an interactive selection menu.
@@ -57,7 +57,7 @@ DumbVersionPatcher
 
 #### Command-Line Mode
 For automated scripts:
-```bash
+```
 DumbVersionPatcher [-o/--output output_path] [base_file] [patch1.dvp, patch2.dvp ...]
 ```
 * **`-o/--output`**: Defines the output filename (if single patch) or the output directory (if applying multiple patches).
@@ -72,7 +72,7 @@ See [this page](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-a
 
 To build the binaries, run the publish command targeting your specific OS and architecture:
 
-```bash
+```
 dotnet publish -c Release -r <target_os>
 ```
 *(`-c Release` is included as some people may have `Debug` set to default instead.)*

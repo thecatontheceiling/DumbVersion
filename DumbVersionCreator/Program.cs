@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using LibDumbVersion;
 
 namespace DumbVersionCreator;
@@ -34,7 +34,7 @@ internal class Program
             return;
         }
 
-        if (args[0].Equals("-bulk", StringComparison.OrdinalIgnoreCase) || 
+        if (args[0].Equals("-bulk", StringComparison.OrdinalIgnoreCase) ||
             args[0].Equals("--bulk", StringComparison.OrdinalIgnoreCase))
         {
             if (args.Length < 3)

@@ -1,4 +1,4 @@
-﻿using System.Buffers.Binary;
+using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Text;
 
@@ -12,7 +12,8 @@ public enum PatchCommand : byte
     CopyTarget = 4
 }
 
-public struct PatchInstruction {
+public struct PatchInstruction
+{
     public PatchCommand Command;
     public long Offset;
     public long Length;
@@ -27,17 +28,19 @@ public class PatchFile : IDisposable
 
     public byte[] ExpectedBaseHash { get; set; } = new byte[32];
     public byte[] ExpectedTargetHash { get; set; } = new byte[32];
-    public string BaseFileName 
-    { 
-        get => baseFileName; 
-        private set => baseFileName = value.Replace("/", "").Replace("\\", "").Replace(":", ""); 
+    public string BaseFileName
+    {
+        get => baseFileName;
+        private set => baseFileName = value.Replace("/", "").Replace("\\", "").Replace(":", "");
     }
     public long TargetSize { get; private set; }
-    
-    private byte[] BaseFileNameBytes { 
+
+    private byte[] BaseFileNameBytes
+    {
         get
         {
-            if (!baseFileNameBytes.Any()) {
+            if (!baseFileNameBytes.Any())
+            {
                 baseFileNameBytes = Encoding.UTF8.GetBytes(baseFileName);
             }
 
@@ -45,12 +48,12 @@ public class PatchFile : IDisposable
         }
     }
     private int HeaderSize =>
-        MagicBytes.Length 
-        + sizeof(long) 
-        + ExpectedBaseHash.Length 
+        MagicBytes.Length
+        + sizeof(long)
+        + ExpectedBaseHash.Length
         + ExpectedTargetHash.Length
         + sizeof(ushort) // to store length
-        + BaseFileNameBytes.Length; 
+        + BaseFileNameBytes.Length;
 
     private static ReadOnlySpan<byte> MagicBytes => "DUMBVER\x01"u8;
 

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="DumbVersionCreator/DumbVersionCreator.csproj" />
+  <Project Path="DumbVersionPatcher/DumbVersionPatcher.csproj" />
+  <Project Path="LibDumbVersion/LibDumbVersion.csproj" />
+</Solution>

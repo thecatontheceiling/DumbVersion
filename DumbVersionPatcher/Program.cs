@@ -1,4 +1,4 @@
-﻿using LibDumbVersion;
+using LibDumbVersion;
 
 namespace DumbVersionPatcher;
 
@@ -21,7 +21,7 @@ internal class Program
             PrintHelp();
             return;
         }
-        
+
         List<string> fileArgs = [];
         string outputDest = "";
         bool isBulk = false;
@@ -37,7 +37,7 @@ internal class Program
             {
                 isInfo = true;
             }
-            else if (args[i].Equals("-o", StringComparison.OrdinalIgnoreCase) || 
+            else if (args[i].Equals("-o", StringComparison.OrdinalIgnoreCase) ||
                      args[i].Equals("--output", StringComparison.OrdinalIgnoreCase))
             {
                 if (i < args.Length - 1)
@@ -352,7 +352,7 @@ internal class Program
             Console.WriteLine($"Error: Required base file could not be resolved for {Path.GetFileName(patchFile)}.");
             return;
         }
-        
+
         bool hasOutputDest = !string.IsNullOrEmpty(outputDest);
         bool isOutputDir = hasOutputDest && (!destAsFile || Directory.Exists(outputDest) ||
                                              outputDest.EndsWith(Path.DirectorySeparatorChar) ||

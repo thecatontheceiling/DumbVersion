@@ -1,4 +1,4 @@
-﻿namespace LibDumbVersion;
+namespace LibDumbVersion;
 
 public static class CommandLineUtility
 {

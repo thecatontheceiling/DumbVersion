@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
 namespace LibDumbVersion;
+
 public unsafe class DiffEngine
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -100,7 +101,7 @@ public unsafe class DiffEngine
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            
+
             Console.WriteLine("Generating Patch...");
 
             var sourceSpan = new ReadOnlySpan<ChunkRecord>(baseIndex.Records, baseIndex.RecordCount);
@@ -389,78 +390,78 @@ public unsafe class DiffEngine
                 switch (cmd)
                 {
                     case PatchCommand.Copy:
-                    {
-                        long relativeOffset = instr.Offset;
-                        long srcOffset = lastBaseOffset + relativeOffset;
-
-                        long length = instr.Length;
-
-                        if (srcOffset < 0 || length < 0 || baseLength - srcOffset < length)
-                            throw new InvalidDataException("Out-of-bounds copy command");
-                        if (targetSize - bytesWritten < length)
-                            throw new InvalidDataException("Copy command exceeds target size");
-
-                        Buffer.MemoryCopy(basePtr + srcOffset, targetPtr + bytesWritten, targetSize - bytesWritten, length);
-                        bytesWritten += length;
-                        lastBaseOffset = srcOffset + length;
-                        break;
-                    }
-                    case PatchCommand.CopyTarget:
-                    {
-                        long distance = instr.Offset;
-                        long length = instr.Length;
-
-                        long srcOffset = bytesWritten - distance;
-
-                        if (distance <= 0 || srcOffset < 0 || length < 0)
-                            throw new InvalidDataException("Out-of-bounds target deduplication command");
-                        if (targetSize - bytesWritten < length)
-                            throw new InvalidDataException("CopyTarget command exceeds target size");
-
-                        if (distance < length)
                         {
-                            long remaining = length;
-                            long currentDst = bytesWritten;
-                            long chunkSize = distance;
+                            long relativeOffset = instr.Offset;
+                            long srcOffset = lastBaseOffset + relativeOffset;
 
+                            long length = instr.Length;
+
+                            if (srcOffset < 0 || length < 0 || baseLength - srcOffset < length)
+                                throw new InvalidDataException("Out-of-bounds copy command");
+                            if (targetSize - bytesWritten < length)
+                                throw new InvalidDataException("Copy command exceeds target size");
+
+                            Buffer.MemoryCopy(basePtr + srcOffset, targetPtr + bytesWritten, targetSize - bytesWritten, length);
+                            bytesWritten += length;
+                            lastBaseOffset = srcOffset + length;
+                            break;
+                        }
+                    case PatchCommand.CopyTarget:
+                        {
+                            long distance = instr.Offset;
+                            long length = instr.Length;
+
+                            long srcOffset = bytesWritten - distance;
+
+                            if (distance <= 0 || srcOffset < 0 || length < 0)
+                                throw new InvalidDataException("Out-of-bounds target deduplication command");
+                            if (targetSize - bytesWritten < length)
+                                throw new InvalidDataException("CopyTarget command exceeds target size");
+
+                            if (distance < length)
+                            {
+                                long remaining = length;
+                                long currentDst = bytesWritten;
+                                long chunkSize = distance;
+
+                                while (remaining > 0)
+                                {
+                                    long toCopy = Math.Min(chunkSize, remaining);
+                                    Buffer.MemoryCopy(targetPtr + srcOffset, targetPtr + currentDst, targetSize - currentDst, toCopy);
+                                    currentDst += toCopy;
+                                    remaining -= toCopy;
+                                    chunkSize += toCopy;
+                                }
+                            }
+                            else
+                            {
+                                Buffer.MemoryCopy(targetPtr + srcOffset, targetPtr + bytesWritten, targetSize - bytesWritten, length);
+                            }
+
+                            bytesWritten += length;
+
+                            break;
+                        }
+                    case PatchCommand.Insert:
+                        {
+                            long length = instr.Length;
+
+                            if (length < 0 || targetSize - bytesWritten < length)
+                                throw new InvalidDataException("Invalid insert command.");
+
+                            long remaining = length;
+                            long currentOffset = bytesWritten;
                             while (remaining > 0)
                             {
-                                long toCopy = Math.Min(chunkSize, remaining);
-                                Buffer.MemoryCopy(targetPtr + srcOffset, targetPtr + currentDst, targetSize - currentDst, toCopy);
-                                currentDst += toCopy;
-                                remaining -= toCopy;
-                                chunkSize += toCopy;
+                                int toRead = (int)Math.Min(8 * 1024 * 1024, remaining);
+                                patch.ReadData(targetPtr + currentOffset, toRead);
+                                remaining -= toRead;
+                                currentOffset += toRead;
                             }
+
+                            bytesWritten += length;
+                            break;
                         }
-                        else
-                        {
-                            Buffer.MemoryCopy(targetPtr + srcOffset, targetPtr + bytesWritten, targetSize - bytesWritten, length);
-                        }
-
-                        bytesWritten += length;
-
-                        break;
-                    }
-                    case PatchCommand.Insert:
-                    {
-                        long length = instr.Length;
-
-                        if (length < 0 || targetSize - bytesWritten < length)
-                            throw new InvalidDataException("Invalid insert command.");
-
-                        long remaining = length;
-                        long currentOffset = bytesWritten;
-                        while (remaining > 0)
-                        {
-                            int toRead = (int)Math.Min(8 * 1024 * 1024, remaining);
-                            patch.ReadData(targetPtr + currentOffset, toRead);
-                            remaining -= toRead;
-                            currentOffset += toRead;
-                        }
-
-                        bytesWritten += length;
-                        break;
-                    }
                 }
 
                 HashUtility.ComputeHashAppend(targetHasher, targetPtr + originalBytesWritten, instr.Length);

@@ -3,8 +3,13 @@ name: Build
 on:
   workflow_dispatch:
 
+env:
+  SOURCE_DATE_EPOCH: 1775932932
+  ZERO_AR_DATE: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
 jobs:
-  build-standard:
+  build-win-mac:
     name: Build ${{ matrix.rid }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -12,14 +17,9 @@ jobs:
       matrix:
         include:
           - rid: win-x64
-            os: windows-latest
+            os: windows-2025
           - rid: win-arm64
             os: windows-11-arm
-          
-          - rid: linux-x64
-            os: ubuntu-22.04
-          - rid: linux-arm64
-            os: ubuntu-22.04-arm
 
           - rid: osx-x64
             os: macos-26-intel
@@ -30,16 +30,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Setup .NET 10
+      - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
-
-      - name: Install NativeAOT Dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang zlib1g-dev
 
       - name: Publish DumbVersionCreator
         run: dotnet publish DumbVersionCreator/DumbVersionCreator.csproj -c Release -r ${{ matrix.rid }} -o ./output/Creator
@@ -48,7 +42,7 @@ jobs:
         run: dotnet publish DumbVersionPatcher/DumbVersionPatcher.csproj -c Release -r ${{ matrix.rid }} -o ./output/Patcher
 
       - name: Stage Unix Binaries
-        if: runner.os != 'Windows'
+        if: runner.os == 'macOS'
         run: |
           mkdir -p ./release
           cp ./output/Creator/DumbVersionCreator ./release/
@@ -68,31 +62,50 @@ jobs:
           path: ./release/*
           retention-days: 7
 
-  build-musl:
-    name: Build linux-musl-x64
-    runs-on: ubuntu-22.04
+  build-linux:
+    name: Build ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: linux-x64
+            os: ubuntu-22.04
+            # dotnet/sdk:10.0-aot
+            image: mcr.microsoft.com/dotnet/sdk@sha256:2a3317f21190fe1b530e02a9d393e5016d709d78b7e523d1f0a0082b31e777fe
+
+          - rid: linux-arm64
+            os: ubuntu-22.04-arm
+            # dotnet/sdk:10.0-aot
+            image: mcr.microsoft.com/dotnet/sdk@sha256:2a3317f21190fe1b530e02a9d393e5016d709d78b7e523d1f0a0082b31e777fe
+
+          - rid: linux-musl-x64
+            os: ubuntu-22.04
+            # dotnet/sdk:10.0-alpine-aot
+            image: mcr.microsoft.com/dotnet/sdk@sha256:9efc18e1243d667f1412209d6b3242d6ebdf14e57294f7f9ed4aca0bbe44ab8a
+
     container:
-      image: mcr.microsoft.com/dotnet/sdk:10.0-alpine-aot
+      image: ${{ matrix.image }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
       - name: Publish DumbVersionCreator
-        run: dotnet publish DumbVersionCreator/DumbVersionCreator.csproj -c Release -r linux-musl-x64 -o ./output/Creator
+        run: dotnet publish DumbVersionCreator/DumbVersionCreator.csproj -c Release -r ${{ matrix.rid }} -o ./output/Creator
 
       - name: Publish DumbVersionPatcher
-        run: dotnet publish DumbVersionPatcher/DumbVersionPatcher.csproj -c Release -r linux-musl-x64 -o ./output/Patcher
+        run: dotnet publish DumbVersionPatcher/DumbVersionPatcher.csproj -c Release -r ${{ matrix.rid }} -o ./output/Patcher
 
-      - name: Stage Musl Binaries
+      - name: Stage Linux Binaries
         run: |
           mkdir -p ./release
-          cp ./output/Creator/DumbVersionCreator ./release
-          cp ./output/Patcher/DumbVersionPatcher ./release
+          cp ./output/Creator/DumbVersionCreator ./release/
+          cp ./output/Patcher/DumbVersionPatcher ./release/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: DumbVersion-linux-musl-x64
+          name: DumbVersion-${{ matrix.rid }}
           path: ./release/*
           retention-days: 7

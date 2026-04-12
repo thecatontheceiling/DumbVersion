@@ -43,7 +43,7 @@ To create patches for a specific folder of target files derived from the same ba
 DumbVersionCreator -bulk/--bulk <base_file> <target_folder> [output_folder]
 ```
 
-**Auto-bulk Mode**
+**Auto-bulk Mode**   
 To pass just a base file to automatically generate patches for all files in the base file's folder that share the exact same extension. Output is placed in a `DVPs` subfolder:
 ```
 DumbVersionCreator <base_file>

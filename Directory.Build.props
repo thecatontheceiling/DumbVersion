@@ -19,9 +19,13 @@
     <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <LinkerArg Include="/BREPRO" />
-    <LinkerArg Include="/PDBALTPATH:%_PDB%" />
+    <LinkerArg Include="/emittoolversioninfo:no" />
   </ItemGroup>
   
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">

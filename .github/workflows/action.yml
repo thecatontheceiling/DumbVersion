@@ -19,7 +19,7 @@ jobs:
           - rid: win-x64
             os: windows-2025
           - rid: win-arm64
-            os: windows-11-arm
+            os: windows-2025
 
           - rid: osx-x64
             os: macos-26-intel

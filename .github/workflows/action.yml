@@ -52,6 +52,7 @@ jobs:
           path: ./output/Creator/DumbVersionCreator${{ matrix.ext }}
           retention-days: 7
           if-no-files-found: error
+          archive: false
 
       - name: Upload DumbVersionPatcher
         uses: actions/upload-artifact@v7
@@ -60,6 +61,7 @@ jobs:
           path: ./output/Patcher/DumbVersionPatcher${{ matrix.ext }}
           retention-days: 7
           if-no-files-found: error
+          archive: false
 
   build-linux:
     name: Build ${{ matrix.rid }}
@@ -106,6 +108,7 @@ jobs:
           path: ./output/Creator/DumbVersionCreator${{ matrix.ext }}
           retention-days: 7
           if-no-files-found: error
+          archive: false
 
       - name: Upload DumbVersionPatcher
         uses: actions/upload-artifact@v7
@@ -114,3 +117,4 @@ jobs:
           path: ./output/Patcher/DumbVersionPatcher${{ matrix.ext }}
           retention-days: 7
           if-no-files-found: error
+          archive: false

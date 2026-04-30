@@ -18,13 +18,17 @@ jobs:
         include:
           - rid: win-x64
             os: windows-2025
+            ext: .exe
           - rid: win-arm64
             os: windows-2025
+            ext: .exe
 
           - rid: osx-x64
             os: macos-26-intel
+            ext: ''
           - rid: osx-arm64
             os: macos-26
+            ext: ''
 
     steps:
       - name: Checkout Repository
@@ -41,26 +45,21 @@ jobs:
       - name: Publish DumbVersionPatcher
         run: dotnet publish DumbVersionPatcher/DumbVersionPatcher.csproj -c Release -r ${{ matrix.rid }} -o ./output/Patcher
 
-      - name: Stage Unix Binaries
-        if: runner.os == 'macOS'
-        run: |
-          mkdir -p ./release
-          cp ./output/Creator/DumbVersionCreator ./release/
-          cp ./output/Patcher/DumbVersionPatcher ./release/
-
-      - name: Stage Windows Binaries
-        if: runner.os == 'Windows'
-        run: |
-          New-Item -ItemType Directory -Force -Path ./release/
-          Copy-Item ./output/Creator/DumbVersionCreator.exe ./release/
-          Copy-Item ./output/Patcher/DumbVersionPatcher.exe ./release/
-
-      - name: Upload Artifact
+      - name: Upload DumbVersionCreator
         uses: actions/upload-artifact@v7
         with:
-          name: DumbVersion-${{ matrix.rid }}
-          path: ./release/*
+          name: DumbVersionCreator-${{ matrix.rid }}
+          path: ./output/Creator/DumbVersionCreator${{ matrix.ext }}
           retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload DumbVersionPatcher
+        uses: actions/upload-artifact@v7
+        with:
+          name: DumbVersionPatcher-${{ matrix.rid }}
+          path: ./output/Patcher/DumbVersionPatcher${{ matrix.ext }}
+          retention-days: 7
+          if-no-files-found: error
 
   build-linux:
     name: Build ${{ matrix.rid }}
@@ -73,16 +72,19 @@ jobs:
             os: ubuntu-22.04
             # dotnet/sdk:10.0-aot
             image: mcr.microsoft.com/dotnet/sdk@sha256:2a3317f21190fe1b530e02a9d393e5016d709d78b7e523d1f0a0082b31e777fe
+            ext: ''
 
           - rid: linux-arm64
             os: ubuntu-22.04-arm
             # dotnet/sdk:10.0-aot
             image: mcr.microsoft.com/dotnet/sdk@sha256:2a3317f21190fe1b530e02a9d393e5016d709d78b7e523d1f0a0082b31e777fe
+            ext: ''
 
           - rid: linux-musl-x64
             os: ubuntu-22.04
             # dotnet/sdk:10.0-alpine-aot
             image: mcr.microsoft.com/dotnet/sdk@sha256:9efc18e1243d667f1412209d6b3242d6ebdf14e57294f7f9ed4aca0bbe44ab8a
+            ext: ''
 
     container:
       image: ${{ matrix.image }}
@@ -97,15 +99,18 @@ jobs:
       - name: Publish DumbVersionPatcher
         run: dotnet publish DumbVersionPatcher/DumbVersionPatcher.csproj -c Release -r ${{ matrix.rid }} -o ./output/Patcher
 
-      - name: Stage Linux Binaries
-        run: |
-          mkdir -p ./release
-          cp ./output/Creator/DumbVersionCreator ./release/
-          cp ./output/Patcher/DumbVersionPatcher ./release/
-
-      - name: Upload Artifact
+      - name: Upload DumbVersionCreator
         uses: actions/upload-artifact@v7
         with:
-          name: DumbVersion-${{ matrix.rid }}
-          path: ./release/*
+          name: DumbVersionCreator-${{ matrix.rid }}
+          path: ./output/Creator/DumbVersionCreator${{ matrix.ext }}
           retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload DumbVersionPatcher
+        uses: actions/upload-artifact@v7
+        with:
+          name: DumbVersionPatcher-${{ matrix.rid }}
+          path: ./output/Patcher/DumbVersionPatcher${{ matrix.ext }}
+          retention-days: 7
+          if-no-files-found: error

@@ -16,6 +16,8 @@ Using **Fast Content-Defined Chunking** (FastCDC) and **xxHash3**, DumbVersion i
 - Includes an extremely user-friendly interactive TUI Patcher designed for end-users.
 - Specifically designed to be compiled ahead-of-time (AOT), which means there are **zero** extra dependencies, including the .NET runtime.
 
+You can see some comparisons against xdelta [here](COMPARISON.md).
+
 ---
 
 ## Usage

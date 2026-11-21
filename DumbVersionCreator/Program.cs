@@ -9,6 +9,12 @@ internal class Program
     {
         args = CommandLineUtility.SanitizeArgs(args);
 
+        if (args.Length == 1 && args[0].Equals("--version", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine($"DumbVersionCreator {typeof(Program).Assembly.GetName().Version?.ToString(3) ?? \"unknown\"}");
+            return;
+        }
+
         if (args.Length == 0 ||
             args.Contains("-h", StringComparer.OrdinalIgnoreCase) ||
             args.Contains("-?", StringComparer.OrdinalIgnoreCase) ||

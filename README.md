@@ -28,6 +28,13 @@ DumbVersion is split into two primary executables:
 
 ---
 
+Both executables print the installed version with `--version`:
+
+```
+DumbVersionCreator --version
+DumbVersionPatcher --version
+```
+
 ### Patch Generation (`DumbVersionCreator`)
 
 The CLI tool is used to index base files, diff them against targets, and emit `.dvp` (DumbVersion Patch) files.

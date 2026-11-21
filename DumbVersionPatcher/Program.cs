@@ -8,6 +8,13 @@ internal class Program
     {
         args = CommandLineUtility.SanitizeArgs(args);
 
+        if (args.Length == 1 && args[0].Equals("--version", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine($"DumbVersionPatcher {typeof(Program).Assembly.GetName().Version?.ToString(3) ?? \"unknown\"}");
+            return;
+        }
+        
+
         Console.Title = "DumbVersion Patcher";
         Console.WriteLine("DumbVersion Patcher");
         Console.WriteLine(@" /\_/\  ");
